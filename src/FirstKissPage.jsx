@@ -462,7 +462,7 @@ function BridgeScene() {
           x="82"
           y="118"
           width="22"
-          height="24"
+          height="24" 
           rx="8"
           fill="url(#skinHim)"
         />
