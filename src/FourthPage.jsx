@@ -252,7 +252,7 @@ const VerifyGate = ({ onPass }) => {
   const { out } = useTypewriter("Who dares enter this story?", 80, true);
 
   const attempt = () => {
-    if (name.toLowerCase().includes("mandabadak")) {
+    if (name.toLowerCase().includes("janvhi")) {
       triggerPetals();
       setTimeout(onPass, 600);
     } else {

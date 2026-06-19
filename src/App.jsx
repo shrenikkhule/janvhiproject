@@ -1,12 +1,9 @@
-// import FourthPage from "./FourthPage";
-import FirstKissPage from "./FirstKissPage";
-import TangledScene from "./games/HandWave";
+import FourthPage from "./FourthPage";
 
 function App() {
   return (
     <>
-      {/* <FourthPage></FourthPage> */}
-      <FirstKissPage></FirstKissPage>
+      <FourthPage></FourthPage>
 
       {/* <TangledScene></TangledScene> */}
     </>
