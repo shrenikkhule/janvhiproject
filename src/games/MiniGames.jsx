@@ -21,17 +21,22 @@ export const MiniGames = ({ onBack, onAchieve }) => {
   const QUIZ = [
     {
       q: "आपली पहिली भेट कुठे झाली?",
-      opts: ["Kranti Chowk", "Sadar", "MG Road", "Station"],
+      opts: ["Kranti Chowk", "TrueView Company", "Cannot", "Beer Bar"],
       ans: 0,
     },
     {
-      q: "Baba ने accidental call मध्ये काय ऐकलं?",
+      q: "Pappa ने accidental call मध्ये काय ऐकलं?",
       opts: ["भांडण", "प्रेमाच्या गोष्टी", "Ghost sounds", "Chai order"],
       ans: 1,
     },
     {
       q: "Holi chya diwashi kontya color ni apan holi khelali ..?",
-      opts: ["varnish & Chikhal", "Natural colors", "khelalo cha nahi", "simple colors"],
+      opts: [
+        "varnish & Chikhal",
+        "Natural colors",
+        "khelalo cha nahi",
+        "simple colors",
+      ],
       ans: 0,
     },
     {
@@ -40,9 +45,14 @@ export const MiniGames = ({ onBack, onAchieve }) => {
       ans: 3,
     },
     {
-      q: "सकाळी 7 वाजता kadai मधून काय होतं?",
-      opts: ["Dosa", "Imarrati", "Vada", "Lassi"],
+      q: "Apan Kontya Theater Madhi Movie baghitala?",
+      opts: ["PVR", "INOX Reliance", "Khinvasara Cineplex", "Cinepolis"],
       ans: 1,
+    },
+    {
+      q: "How long did we kiss non-stop?",
+      opts: ["5min", "2min", "13min", "21min"],
+      ans: 3,
     },
     {
       q: "Bike ride वर जास्त घाबरतो कोण?",
@@ -95,7 +105,7 @@ export const MiniGames = ({ onBack, onAchieve }) => {
       id: "hearts",
       icon: "💕",
       name: "Hearts पकड",
-      desc: "पडणारी hearts पकड!",
+      desc: "Falling hearts पकड!",
       color: "var(--deep)",
     },
     {
@@ -230,7 +240,7 @@ export const MiniGames = ({ onBack, onAchieve }) => {
                 backdropFilter: "blur(10px)",
               }}
             >
-              ← परत कहाणीवर
+              ← परत Story Var
             </button>
           </div>
         </>
@@ -295,7 +305,7 @@ export const MiniGames = ({ onBack, onAchieve }) => {
                   }}
                 >
                   {hScore > 0
-                    ? `तू ${hScore} hearts पकडल्या! ❤️`
+                    ? `तू ${hScore} hearts catch! ❤️`
                     : "Hearts पकडायला तयार?"}
                 </p>
                 <button
@@ -315,7 +325,7 @@ export const MiniGames = ({ onBack, onAchieve }) => {
                     fontWeight: 700,
                   }}
                 >
-                  {hScore > 0 ? "पुन्हा खेळ" : "सुरू कर"}
+                  {hScore > 0 ? "play Again Mand" : "Play कर"}
                 </button>
               </div>
             )}
@@ -447,8 +457,8 @@ export const MiniGames = ({ onBack, onAchieve }) => {
                 }}
               >
                 {qScore >= 4
-                  ? "तुला ही कहाणी मनापासून माहीत आहे!"
-                  : "अजून आठवणी कर!"}
+                  ? "तुला ही Story मनापासून माहीत आहे!"
+                  : "अजून आठवन कर!"}
               </p>
               <button
                 onClick={() => {
@@ -466,7 +476,7 @@ export const MiniGames = ({ onBack, onAchieve }) => {
                   fontWeight: 700,
                 }}
               >
-                पुन्हा खेळ
+                Play Again Mand
               </button>
             </div>
           )}
