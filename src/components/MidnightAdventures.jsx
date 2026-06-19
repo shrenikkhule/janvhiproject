@@ -10,32 +10,30 @@ const SPOTS = [
     icon: "☕",
     name: "Chai Sutta",
     loc: [28, 56],
-    memory:
-      "रात्री 1 वाजता Cannot वर chai. थंडीची तक्रार करत होतीस पण आतून enjoy करत होतीस 😄",
+    memory: "रात्री 1 वाजता Cannot वर chai. mast Night Ride enjoy करत होतीस 😄",
   },
   {
     id: "gola",
     icon: "🧊",
     name: "Gola",
     loc: [54, 36],
-    memory:
-      "Rainbow gola fight! निळा gola नाकावर लागला आणि तू pretend केलीस की काही झालंच नाही 😂",
+    memory: "Orange gola ! Oragne gola Jibh orange karun dakhavt hoti 😂",
   },
   {
     id: "khasta",
     icon: "🥟",
-    name: "Khasta Kachori",
+    name: "Khasta Ragda",
     loc: [70, 62],
     memory:
-      "रात्री उशिरा khasta. Scooter च्या step वर बसून खाण्याचा royal feel!",
+      "रात्री उशिरा khasta Ragda. Bike च्या step वर बसून खाण्याचा royal feel!",
   },
   {
-    id: "ragada",
+    id: "Samosa Rice",
     icon: "🍲",
-    name: "Ragada",
+    name: "SamosaRice",
     loc: [20, 30],
     memory:
-      "4थ्या भेटीपासून Ragadewala आपल्याला ओळखायला लागला. आपण regular झालो होतो!",
+      "first night out la Samosa rice khau ghatla Ani tula avdala nahi test 😄😄😄 ",
   },
   {
     id: "coffee",
@@ -43,14 +41,22 @@ const SPOTS = [
     name: "Cold Coffee",
     loc: [80, 27],
     memory:
-      "Midnight ला cold coffee. झोप लवकर येईल म्हणालीस. पण 2 vaje parynt bike ride 😄",
+      "Midnight ला Tujhi cold coffee Ani majhi cold coffee plus Ciggrate. 2 vaje parynt bike ride 😄",
   },
   {
     id: "panipuri",
     icon: "🫧",
     name: "Panipuri",
     loc: [44, 72],
-    memory: "तिखट panipuri खाताना तुझा चेहरा. Priceless! अगदी priceless!",
+    memory: "तिखट panipuri खाताना तुझा चेहरा. Lal..! अगदी priceless!",
+  },
+  {
+    id: "Juice",
+    icon: "🫧",
+    name: "Juice",
+    loc: [44, 72],
+    memory:
+      "Tujha Mango Shake ani majha Anjir Shake ratri 2 vajta dogh cha shop madhi",
   },
 ];
 
@@ -284,7 +290,7 @@ export const Chapter4 = ({ onNext, onAchieve }) => {
               fontSize: 16,
             }}
           >
-            "शहराच्या प्रत्येक कोपऱ्यात तुझ्याशी एक आठवण..."
+            "शहराच्या प्रत्येक Corner madhi तुझ्याशी एक आठवण..."
           </p>
           <button
             onClick={onNext}

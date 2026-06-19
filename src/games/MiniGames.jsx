@@ -59,6 +59,11 @@ export const MiniGames = ({ onBack, onAchieve }) => {
       opts: ["Shrenik", "Shreya", "दोघेही", "कुणीच नाही"],
       ans: 3,
     },
+    {
+      q: "?",
+      opts: ["Shrenik", "Shreya", "दोघेही", "कुणीच नाही"],
+      ans: 3,
+    },
   ];
 
   useEffect(() => {

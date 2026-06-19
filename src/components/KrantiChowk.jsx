@@ -21,6 +21,10 @@ export const Chapter1 = ({ onNext, onAchieve }) => {
     },
     { side: "left", text: "That's... oddly confident! 😂" },
     { side: "right", text: "आणि हे आपल्या Story Chi सुरुवात होती... ❤️" },
+    {
+      side: "right",
+      text: "आणि EndLess converstion madhi apan group la magh sodun tyana visrun gelto... ❤️",
+    },
   ];
 
   const startEngine = () => {

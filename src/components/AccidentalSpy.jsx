@@ -10,7 +10,7 @@ export const Chapter3 = ({ onNext, onAchieve }) => {
     {
       icon: "📱",
       title: "The Conversation",
-      text: "एक सुंदर Evening. खोल गप्पा. laugh. Romance.",
+      text: "एक सुंदर Night. खोल गप्पा. laugh. Romance.",
     },
     {
       icon: "😬",

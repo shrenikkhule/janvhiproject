@@ -5,7 +5,7 @@ import { ChapterPill, Starfield } from "../SHAREDCOMPONENTS/Starfield";
    CHAPTER 5 — Bhadramaruti Horror
 ═══════════════════════════════════════════════ */
 const SCAN_MSGS = [
-  "👻 1 Dayan सापडली... थांब — 9 DAYAN येत आहेत!",
+  "👻 1 Dayan सापडली... Wait — 9 DAYAN येत आहेत!",
   "🔴 ALERT: Paranormal activity MAXIMUM level",
   "💀 त्या माणसाने सांगितलं होतं. कुणी ऐकलं नाही.",
   "😱 Bhadramaruti area जवळ signal बंद झाला",
@@ -105,7 +105,7 @@ export const Chapter5 = ({ onNext, onAchieve }) => {
             marginTop: 6,
           }}
         >
-          "रात्री 11... एक अजनबी... आणि 9 DAYAN..."
+          "रात्री 1... एक अजनबी... आणि 9 DAYAN..."
         </p>
       </div>
 
