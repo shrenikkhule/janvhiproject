@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { ChapterPill, Starfield } from "../SHAREDCOMPONENTS/Starfield";
 
 /* ═══════════════════════════════════════════════
    CHAPTER 4 — Midnight Adventures
-   Design: Polaroid Film Strip Scrapbook
-   Every memory = a polaroid photo card you "develop"
-   by scratching it. Unique reveal per spot.
+   "The Ride" — a scooter actually travels a glowing
+   route between every stop, in order, the way the
+   night really happened. Each arrival unlocks the
+   memory with a flip-card + heart burst. The moon
+   above fills out as the night goes on.
 ═══════════════════════════════════════════════ */
 
 const SPOTS = [
@@ -12,928 +15,677 @@ const SPOTS = [
     id: "chaha",
     icon: "☕",
     name: "Chai Sutta",
-    time: "1:00 AM",
-    color: "from-amber-900/80 to-orange-950/80",
-    accent: "#f59e0b",
-    polaroidBg: "bg-amber-950",
-    memory:
-      "रात्री 1 वाजता Cannot वर chai. तू mast Night Ride enjoy करत होतीस — आणि chai च्या वाफेत तुझं हसणं अजूनही आठवतं 😄",
-    emoji: "🌫️",
+    x: 110,
+    y: 70,
+    memory: "रात्री 1 वाजता Cannot वर chai. mast Night Ride enjoy करत होतीस 😄",
   },
   {
     id: "gola",
     icon: "🧊",
     name: "Gola",
-    time: "11:30 PM",
-    color: "from-sky-900/80 to-blue-950/80",
-    accent: "#38bdf8",
-    polaroidBg: "bg-sky-950",
-    memory:
-      "Orange gola! तुझी jibh orange झाली होती आणि मला दाखवत होतीस — life ची best moment 😂",
-    emoji: "🍊",
+    x: 300,
+    y: 165,
+    memory: "Orange gola ! Oragne gola Jibh orange karun dakhavt hoti 😂",
   },
   {
     id: "khasta",
     icon: "🥟",
     name: "Khasta Ragda",
-    time: "12:30 AM",
-    color: "from-yellow-900/80 to-amber-950/80",
-    accent: "#eab308",
-    polaroidBg: "bg-yellow-950",
+    x: 95,
+    y: 270,
     memory:
-      "रात्री उशिरा khasta Ragda. Bike च्या step वर बसून खाण्याचा royal feel — फक्त तुझ्यासोबत!",
-    emoji: "👑",
+      "रात्री उशिरा khasta Ragda. Bike च्या step वर बसून खाण्याचा royal feel!",
   },
   {
-    id: "samosa",
+    id: "samosarice",
     icon: "🍲",
-    name: "Samosa Rice",
-    time: "10:00 PM",
-    color: "from-red-900/80 to-rose-950/80",
-    accent: "#f43f5e",
-    polaroidBg: "bg-red-950",
+    name: "SamosaRice",
+    x: 305,
+    y: 365,
     memory:
-      "First night out ला Samosa Rice खाऊ घातलं आणि तुला आवडलं नाही — तुझा तो चेहरा 😄😄😄 Priceless!",
-    emoji: "😬",
+      "first night out la Samosa rice khau ghatla Ani tula avdala nahi test 😄😄😄",
   },
   {
     id: "coffee",
     icon: "🥤",
     name: "Cold Coffee",
-    time: "2:00 AM",
-    color: "from-purple-900/80 to-violet-950/80",
-    accent: "#a855f7",
-    polaroidBg: "bg-purple-950",
+    x: 100,
+    y: 460,
     memory:
-      "Midnight ला तुझी cold coffee आणि माझी. Cigarette धुरात 2 वाजेपर्यंत bike ride — perfect night 😄",
-    emoji: "🌙",
+      "Midnight ला Tujhi cold coffee Ani majhi cold coffee plus Ciggrate. 2 vaje parynt bike ride 😄",
   },
   {
     id: "panipuri",
     icon: "🫧",
     name: "Panipuri",
-    time: "9:30 PM",
-    color: "from-green-900/80 to-emerald-950/80",
-    accent: "#22c55e",
-    polaroidBg: "bg-green-950",
-    memory:
-      "तिखट panipuri खाताना तुझा चेहरा लाल झाला होता — अगदी priceless! तरी थांबत नव्हतीस 😂",
-    emoji: "🌶️",
+    x: 300,
+    y: 545,
+    memory: "तिखट panipuri खाताना तुझा चेहरा. Lal..! अगदी priceless!",
   },
   {
     id: "juice",
-    icon: "🍹",
-    name: "Juice Corner",
-    time: "1:45 AM",
-    color: "from-pink-900/80 to-fuchsia-950/80",
-    accent: "#ec4899",
-    polaroidBg: "bg-pink-950",
+    icon: "🥭",
+    name: "Juice",
+    x: 130,
+    y: 630,
     memory:
-      "तुझा Mango Shake आणि माझा Anjir Shake — रात्री 2 वाजता दोघं त्या shop मध्ये. Cheers to us! 🥂",
-    emoji: "🥭",
+      "Tujha Mango Shake ani majha Anjir Shake ratri 2 vajta dogh cha shop madhi",
   },
 ];
 
-/* ── Starfield ── */
-function StarCanvas() {
-  const ref = useRef(null);
-  useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const ctx = c.getContext("2d");
-    let raf;
-    const stars = Array.from({ length: 200 }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 1.5 + 0.2,
-      phase: Math.random() * Math.PI * 2,
-      speed: Math.random() * 0.01 + 0.004,
-    }));
-    function resize() {
-      c.width = window.innerWidth;
-      c.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener("resize", resize);
-    function draw() {
-      ctx.clearRect(0, 0, c.width, c.height);
-      stars.forEach((s) => {
-        s.phase += s.speed;
-        const a = 0.2 + 0.8 * Math.abs(Math.sin(s.phase));
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(220,210,255,${a})`;
-        ctx.fill();
-      });
-      raf = requestAnimationFrame(draw);
-    }
-    draw();
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-  return (
-    <canvas
-      ref={ref}
-      style={{
-        position: "fixed",
-        inset: 0,
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
-    />
-  );
-}
+const VB_W = 400;
+const VB_H = 700;
+const MOON_PHASES = ["🌑", "🌒", "🌓", "🌔", "🌕"];
 
-/* ── Floating hearts burst ── */
-function HeartBurst({ x, y, onDone }) {
-  const items = ["💜", "✨", "🌙", "💫", "🤍", "⭐"];
-  useEffect(() => {
-    const t = setTimeout(onDone, 1400);
-    return () => clearTimeout(t);
-  }, [onDone]);
-  return (
-    <>
-      {Array.from({ length: 5 }, (_, i) => (
-        <span
-          key={i}
-          style={{
-            position: "fixed",
-            left: x + (Math.random() - 0.5) * 60,
-            top: y,
-            fontSize: 20,
-            pointerEvents: "none",
-            zIndex: 9999,
-            animation: `burstUp${i % 3} 1.2s ease-out forwards`,
-            animationDelay: `${i * 80}ms`,
-            opacity: 0,
-          }}
-        >
-          {items[i % items.length]}
-        </span>
-      ))}
-    </>
-  );
-}
-
-/* ── Scratch-to-Reveal Polaroid ── */
-function PolaroidCard({ spot, onReveal, revealed }) {
-  const canvasRef = useRef(null);
-  const [scratched, setScratched] = useState(false);
-  const [scratchPct, setScratchPct] = useState(0);
-  const isDrawing = useRef(false);
-
-  useEffect(() => {
-    if (revealed) {
-      setScratched(true);
-      return;
-    }
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    // Fill with silver scratch layer
-    ctx.fillStyle = "#1e1533";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Scratchy texture pattern
-    for (let i = 0; i < 300; i++) {
-      const x = Math.random() * canvas.width;
-      const y = Math.random() * canvas.height;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + Math.random() * 8 - 4, y + Math.random() * 4 - 2);
-      ctx.strokeStyle = `rgba(255,255,255,${Math.random() * 0.06})`;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    // Hint text
-    ctx.font = "bold 13px sans-serif";
-    ctx.fillStyle = "rgba(200,180,255,0.5)";
-    ctx.textAlign = "center";
-    ctx.fillText("✦ Scratch to reveal ✦", canvas.width / 2, canvas.height / 2);
-  }, [revealed]);
-
-  function getPos(e, canvas) {
-    const rect = canvas.getBoundingClientRect();
-    const src = e.touches ? e.touches[0] : e;
-    return {
-      x: ((src.clientX - rect.left) / rect.width) * canvas.width,
-      y: ((src.clientY - rect.top) / rect.height) * canvas.height,
-    };
+// Catmull-Rom → smooth bezier path through every stop, in order
+function buildRoute(points) {
+  let d = `M ${points[0].x},${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i === 0 ? 0 : i - 1];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
   }
+  return d;
+}
+const ROUTE_D = buildRoute(SPOTS);
 
-  function scratch(e) {
-    if (scratched) return;
-    e.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const { x, y } = getPos(e, canvas);
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Check coverage
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    let cleared = 0;
-    for (let i = 3; i < data.length; i += 4) {
-      if (data[i] === 0) cleared++;
-    }
-    const pct = (cleared / (canvas.width * canvas.height)) * 100;
-    setScratchPct(Math.round(pct));
-    if (pct > 45) {
-      setScratched(true);
-      onReveal();
-    }
-  }
-
-  return (
-    <div
-      className="relative"
-      style={{
-        width: "100%",
-        aspectRatio: "3/4",
-        borderRadius: 4,
-        overflow: "hidden",
-      }}
-    >
-      {/* Memory content underneath */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${spot.color} flex flex-col items-center justify-center p-4 text-center`}
-      >
-        <div style={{ fontSize: 38 }}>{spot.icon}</div>
-        <div style={{ fontSize: 28 }}>{spot.emoji}</div>
-        <p
-          style={{
-            fontSize: 11,
-            color: "rgba(255,255,255,0.85)",
-            lineHeight: 1.6,
-            marginTop: 10,
-            fontStyle: "italic",
-          }}
-        >
-          {spot.memory}
-        </p>
-      </div>
-
-      {/* Scratch overlay canvas */}
-      {!scratched && (
-        <canvas
-          ref={canvasRef}
-          width={240}
-          height={320}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            touchAction: "none",
-            cursor: "crosshair",
-            borderRadius: 4,
-          }}
-          onMouseDown={(e) => {
-            isDrawing.current = true;
-            scratch(e);
-          }}
-          onMouseMove={(e) => {
-            if (isDrawing.current) scratch(e);
-          }}
-          onMouseUp={() => (isDrawing.current = false)}
-          onTouchStart={scratch}
-          onTouchMove={scratch}
-        />
-      )}
-
-      {/* Scratch progress hint */}
-      {!scratched && scratchPct > 5 && scratchPct < 45 && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 8,
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "rgba(0,0,0,0.6)",
-            borderRadius: 20,
-            padding: "2px 10px",
-            fontSize: 10,
-            color: "rgba(255,255,255,0.7)",
-            pointerEvents: "none",
-          }}
-        >
-          {scratchPct}% scratched
-        </div>
-      )}
-    </div>
-  );
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-/* ── Main Chapter 4 ── */
+let burstSeed = 0;
+
 export const Chapter4 = ({ onNext, onAchieve }) => {
-  const [revealed, setRevealed] = useState([]);
+  const [visitedCount, setVisitedCount] = useState(0);
+  const [ridingUI, setRidingUI] = useState(false);
+  const [activeCard, setActiveCard] = useState(-1);
   const [bursts, setBursts] = useState([]);
-  const [activeIdx, setActiveIdx] = useState(null);
-  const [filmPos, setFilmPos] = useState(0);
+  const [showFinale, setShowFinale] = useState(false);
+  const [ready, setReady] = useState(false);
+
   const onAchRef = useRef(onAchieve);
-  const stripRef = useRef(null);
   useEffect(() => {
     onAchRef.current = onAchieve;
   }, [onAchieve]);
 
-  const reveal = (id, e) => {
-    if (revealed.includes(id)) return;
-    const next = [...revealed, id];
-    setRevealed(next);
-    if (next.length === 4) onAchRef.current?.("Midnight Rider 🌙", "🌙");
+  const pathRef = useRef(null);
+  const bikeRef = useRef(null);
+  const lengthRef = useRef(0);
+  const totalLenRef = useRef(0);
+  const waypointLensRef = useRef([]);
+  const ridingRef = useRef(false);
+  const rafRef = useRef(null);
+  const reducedMotion = useRef(false);
 
-    // Burst at tap position
-    const rect = e?.currentTarget?.getBoundingClientRect?.();
-    if (rect) {
-      const bid = Date.now();
-      setBursts((b) => [
-        ...b,
-        {
-          id: bid,
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        },
-      ]);
+  const positionBike = useCallback((len) => {
+    const path = pathRef.current;
+    if (!path) return;
+    const total = totalLenRef.current;
+    const pt = path.getPointAtLength(len);
+    const pt2 = path.getPointAtLength(Math.min(len + 1.5, total));
+    const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * (180 / Math.PI);
+    if (bikeRef.current) {
+      bikeRef.current.style.left = (pt.x / VB_W) * 100 + "%";
+      bikeRef.current.style.top = (pt.y / VB_H) * 100 + "%";
+      bikeRef.current.style.transform = `translate(-50%,-58%) rotate(${angle}deg)`;
     }
+    path.style.strokeDashoffset = String(total - len);
+  }, []);
+
+  // measure the route once it's in the DOM
+  useEffect(() => {
+    reducedMotion.current =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const path = pathRef.current;
+    if (!path) return;
+    const total = path.getTotalLength();
+    totalLenRef.current = total;
+    path.style.strokeDasharray = String(total);
+
+    const samples = 600;
+    const sampled = [];
+    for (let i = 0; i <= samples; i++) {
+      const len = (i / samples) * total;
+      const pt = path.getPointAtLength(len);
+      sampled.push({ len, x: pt.x, y: pt.y });
+    }
+    waypointLensRef.current = SPOTS.map((s) => {
+      let best = sampled[0];
+      let bestDist = Infinity;
+      for (const sp of sampled) {
+        const dist = (sp.x - s.x) ** 2 + (sp.y - s.y) ** 2;
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = sp;
+        }
+      }
+      return best.len;
+    });
+
+    positionBike(0);
+    setReady(true);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [positionBike]);
+
+  const spawnBurst = (spot) => {
+    const id = burstSeed++;
+    const hearts = Array.from({ length: 9 }, (_, i) => {
+      const angle = (Math.PI * 2 * i) / 9 + Math.random() * 0.4;
+      const dist = 26 + Math.random() * 22;
+      return {
+        key: `${id}-${i}`,
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist - 14,
+        delay: Math.random() * 0.12,
+        glyph: Math.random() > 0.4 ? "💗" : "✨",
+      };
+    });
+    setBursts((b) => [...b, { id, x: spot.x, y: spot.y, hearts }]);
+    setTimeout(() => {
+      setBursts((b) => b.filter((x) => x.id !== id));
+    }, 1300);
   };
 
-  const removeBurst = (id) => setBursts((b) => b.filter((x) => x.id !== id));
+  const onArrive = useCallback((idx) => {
+    setVisitedCount(idx + 1);
+    setActiveCard(idx);
+    spawnBurst(SPOTS[idx]);
+    if (idx + 1 === 4) onAchRef.current("Midnight Rider 🌙", "🌙");
+    if (idx + 1 === SPOTS.length) {
+      setTimeout(() => setShowFinale(true), 900);
+    }
+  }, []);
 
-  // Film strip scroll controls
-  const scroll = (dir) => {
-    const el = stripRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * 230, behavior: "smooth" });
+  const rideTo = useCallback(
+    (targetLen, idx) => {
+      if (ridingRef.current) return;
+      ridingRef.current = true;
+      setRidingUI(true);
+      const startLen = lengthRef.current;
+      const duration = reducedMotion.current ? 1 : 1150 + Math.random() * 250;
+      const startTime = performance.now();
+
+      const step = (now) => {
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = easeInOutCubic(t);
+        const newLen = startLen + (targetLen - startLen) * eased;
+        lengthRef.current = newLen;
+        positionBike(newLen);
+        if (t < 1) {
+          rafRef.current = requestAnimationFrame(step);
+        } else {
+          ridingRef.current = false;
+          setRidingUI(false);
+          onArrive(idx);
+        }
+      };
+      rafRef.current = requestAnimationFrame(step);
+    },
+    [positionBike, onArrive],
+  );
+
+  const handleTap = (i) => {
+    if (!ready || ridingRef.current || i !== visitedCount) return;
+    rideTo(waypointLensRef.current[i], i);
   };
 
-  const allDone = revealed.length === SPOTS.length;
+  const moonPhase =
+    MOON_PHASES[Math.min(4, Math.floor((visitedCount / SPOTS.length) * 4))];
+  const pct = (v, total) => (v / total) * 100;
 
   return (
     <div
       style={{
         minHeight: "100vh",
         background:
-          "linear-gradient(160deg,#06030f 0%,#0d0620 50%,#090415 100%)",
-        paddingBottom: 60,
+          "linear-gradient(160deg,#f8f0ff 0%,#e8f0ff 50%,#f0f8ff 100%)",
+        padding: "70px 16px 60px",
         position: "relative",
         overflow: "hidden",
       }}
     >
-      <StarCanvas />
-
-      {/* Burst hearts */}
-      {bursts.map((b) => (
-        <HeartBurst
-          key={b.id}
-          x={b.x}
-          y={b.y}
-          onDone={() => removeBurst(b.id)}
-        />
-      ))}
-
-      {/* Keyframes injected globally */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Inter:wght@400;500;600&display=swap');
-        @keyframes burstUp0 { 0%{opacity:0;transform:translateY(0) scale(.5)} 20%{opacity:1} 100%{opacity:0;transform:translateY(-90px) scale(1)} }
-        @keyframes burstUp1 { 0%{opacity:0;transform:translateY(0) scale(.5) rotate(-15deg)} 20%{opacity:1} 100%{opacity:0;transform:translateY(-120px) scale(1.1) rotate(10deg)} }
-        @keyframes burstUp2 { 0%{opacity:0;transform:translateY(0) scale(.5) rotate(15deg)} 20%{opacity:1} 100%{opacity:0;transform:translateY(-70px) scale(.9) rotate(-10deg)} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes shimmer { 0%,100%{opacity:.4} 50%{opacity:1} }
-        @keyframes rotateSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes filmSlide { from{transform:translateX(0)} to{transform:translateX(-10px)} }
-        .ch4-playfair { font-family:'Playfair Display',serif; }
-        .ch4-inter { font-family:'Inter',sans-serif; }
-        .polaroid-wrap {
-          flex-shrink: 0;
-          width: 200px;
-          background: #0e0920;
-          border: 1px solid rgba(180,100,255,0.18);
-          border-radius: 6px;
-          padding: 10px 10px 36px;
-          position: relative;
-          transition: transform .3s ease, box-shadow .3s ease;
-          cursor: pointer;
-          animation: fadeUp .5s ease forwards;
+        @keyframes ch4-pulseRing {
+          0%   { box-shadow: 0 0 0 0 rgba(196,112,106,.55); }
+          70%  { box-shadow: 0 0 0 14px rgba(196,112,106,0); }
+          100% { box-shadow: 0 0 0 0 rgba(196,112,106,0); }
         }
-        .polaroid-wrap:hover {
-          transform: translateY(-6px) rotate(0deg) !important;
-          box-shadow: 0 20px 50px rgba(180,100,255,0.25) !important;
+        @keyframes ch4-twinkle {
+          0%,100% { opacity: .25; transform: scale(.8); }
+          50%     { opacity: 1;   transform: scale(1.15); }
         }
-        .polaroid-revealed {
-          box-shadow: 0 8px 30px rgba(180,100,255,0.2);
+        @keyframes ch4-cardIn {
+          0%   { opacity: 0; transform: rotateX(-65deg) translateY(10px); }
+          100% { opacity: 1; transform: rotateX(0deg) translateY(0); }
         }
-        .film-hole {
-          width: 12px; height: 12px;
-          border-radius: 2px;
-          background: #06030f;
-          border: 1px solid rgba(255,255,255,0.08);
-          flex-shrink: 0;
+        @keyframes ch4-burstFloat {
+          0%   { opacity: 1; transform: translate(0,0) scale(.6); }
+          100% { opacity: 0; transform: translate(var(--dx),var(--dy)) scale(1.1); }
         }
-        .film-strip-scroll::-webkit-scrollbar { display:none; }
-        .film-strip-scroll { scrollbar-width:none; }
+        @keyframes ch4-float {
+          0%   { transform: translateY(0) rotate(0deg);   opacity: 0; }
+          10%  { opacity: .8; }
+          90%  { opacity: .8; }
+          100% { transform: translateY(-90px) rotate(12deg); opacity: 0; }
+        }
+        @keyframes ch4-glowPulse {
+          0%,100% { filter: drop-shadow(0 0 6px rgba(168,200,232,.6)); }
+          50%     { filter: drop-shadow(0 0 16px rgba(196,112,106,.8)); }
+        }
+        @keyframes ch4-rain {
+          0%   { transform: translateY(-10%) translateX(0); opacity: 0; }
+          10%  { opacity: 1; }
+          100% { transform: translateY(110vh) translateX(20px); opacity: 0; }
+        }
+        .ch4-route-glow { animation: ch4-glowPulse 2.4s ease-in-out infinite; }
+        .ch4-card-enter { animation: ch4-cardIn .55s cubic-bezier(.22,1,.36,1) both; transform-style: preserve-3d; }
+        .ch4-bike-idle { animation: ch4-glowPulse 2.2s ease-in-out infinite; }
+        .ch4-next-pulse { animation: ch4-pulseRing 1.8s ease-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .ch4-route-glow, .ch4-card-enter, .ch4-bike-idle, .ch4-next-pulse,
+          .ch4-amb-heart, .ch4-rain-drop { animation: none !important; opacity: 0 !important; }
+        }
       `}</style>
 
-      {/* ── HERO ── */}
+      <Starfield count={30} />
+
       <div
-        className="ch4-inter"
         style={{
-          position: "relative",
-          zIndex: 2,
-          textAlign: "center",
-          padding: "56px 20px 20px",
-          animation: "fadeUp .6s ease forwards",
+          position: "absolute",
+          width: 400,
+          height: 400,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle,rgba(168,200,232,.25) 0%,transparent 70%)",
+          bottom: "10%",
+          right: "-10%",
+          pointerEvents: "none",
         }}
-      >
-        {/* Rotating moon glyph */}
-        <div
-          style={{
-            width: 56,
-            height: 56,
-            margin: "0 auto 16px",
-            borderRadius: "50%",
-            border: "1px solid rgba(180,100,255,0.35)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 28,
-            background: "rgba(100,50,180,0.12)",
-            animation: "shimmer 3s ease-in-out infinite",
-          }}
-        >
-          🌙
-        </div>
+      />
 
-        {/* Chapter pill */}
-        <div
-          style={{
-            display: "inline-block",
-            border: "1px solid rgba(200,130,255,0.35)",
-            borderRadius: 40,
-            padding: "3px 16px",
-            fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: 3,
-            color: "rgba(200,140,255,0.8)",
-            textTransform: "uppercase",
-            marginBottom: 14,
-          }}
-        >
-          Chapter 04
-        </div>
-
+      <div className="anim-fadeup text-center mb-7">
+        <ChapterPill num="04" color="var(--sky)" />
         <h1
-          className="ch4-playfair"
+          className="fc"
           style={{
-            fontSize: "clamp(30px,8vw,58px)",
+            fontSize: "clamp(26px,6vw,52px)",
+            color: "var(--ink)",
             fontWeight: 700,
-            color: "#fff",
-            lineHeight: 1.1,
-            marginBottom: 10,
           }}
         >
-          Midnight
-          <br />
-          <span style={{ color: "#d8a4ff", fontStyle: "italic" }}>
-            Adventures
-          </span>
+          Midnight Adventures
         </h1>
-
         <p
           style={{
+            color: "var(--muted)",
             fontSize: 13,
-            color: "rgba(210,180,255,0.55)",
+            marginTop: 6,
             fontStyle: "italic",
-            letterSpacing: 0.3,
-            maxWidth: 300,
-            margin: "0 auto",
           }}
         >
-          तू होती म्हणून रात्र सुंदर होती, Shreya 🌙
+          ती रात्र, ती राईड... चल पुन्हा फिरूया 🛵{" "}
+          <span style={{ opacity: 0.7 }}>
+            ({ridingUI ? "राईड सुरू..." : "पुढचा थांबा टॅप कर"})
+          </span>
         </p>
       </div>
 
-      {/* ── FILM STRIP INSTRUCTION ── */}
-      <div
-        style={{
-          textAlign: "center",
-          marginTop: 6,
-          marginBottom: 20,
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 11,
-            color: "rgba(200,170,255,0.4)",
-            letterSpacing: 1,
-            animation: "shimmer 2.5s ease-in-out infinite",
-          }}
-        >
-          ✦ प्रत्येक polaroid scratch करून memory reveal कर ✦
-        </span>
-      </div>
-
-      {/* ── FILM STRIP ── */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-          marginBottom: 16,
-        }}
-      >
-        {/* Film top perforations */}
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            padding: "0 20px",
-            marginBottom: 6,
-            alignItems: "center",
-            overflowX: "hidden",
-          }}
-        >
-          {Array.from({ length: 30 }, (_, i) => (
-            <div key={i} className="film-hole" />
-          ))}
+      <div className="max-w-[640px] mx-auto">
+        {/* progress strip */}
+        <div className="flex items-center gap-3 mb-3 px-1">
+          <span style={{ fontSize: 20 }}>{moonPhase}</span>
+          <div className="flex-1 h-1.5 rounded-full bg-white/40 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${pct(visitedCount, SPOTS.length)}%`,
+                background: "linear-gradient(90deg,var(--sky),var(--rose))",
+              }}
+            />
+          </div>
+          <span style={{ color: "var(--rose)", fontSize: 12, fontWeight: 700 }}>
+            {visitedCount}/{SPOTS.length}
+          </span>
         </div>
 
-        {/* Navigation arrows */}
-        <button
-          onClick={() => scroll(-1)}
-          style={{
-            position: "absolute",
-            left: 4,
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 10,
-            background: "rgba(100,50,180,0.4)",
-            border: "1px solid rgba(200,130,255,0.3)",
-            borderRadius: "50%",
-            width: 36,
-            height: 36,
-            cursor: "pointer",
-            color: "#d8a4ff",
-            fontSize: 16,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          ‹
-        </button>
-        <button
-          onClick={() => scroll(1)}
-          style={{
-            position: "absolute",
-            right: 4,
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 10,
-            background: "rgba(100,50,180,0.4)",
-            border: "1px solid rgba(200,130,255,0.3)",
-            borderRadius: "50%",
-            width: 36,
-            height: 36,
-            cursor: "pointer",
-            color: "#d8a4ff",
-            fontSize: 16,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          ›
-        </button>
-
-        {/* Scrollable polaroid strip */}
+        {/* the night map */}
         <div
-          ref={stripRef}
-          className="film-strip-scroll"
+          className="anim-scalein relative rounded-[22px] overflow-hidden"
           style={{
-            display: "flex",
-            gap: 14,
-            overflowX: "auto",
-            padding: "8px 44px",
-            scrollSnapType: "x mandatory",
+            aspectRatio: `${VB_W} / ${VB_H}`,
+            maxHeight: 480,
+            animationDelay: ".1s",
+            background:
+              "radial-gradient(120% 90% at 20% 0%, #2a2860 0%, #181537 45%, #0d0b22 100%)",
+            boxShadow: "0 18px 40px rgba(20,10,50,.35)",
           }}
         >
-          {SPOTS.map((s, i) => {
-            const isRevealed = revealed.includes(s.id);
-            const rotation = (i % 2 === 0 ? 1 : -1) * (1 + (i % 3));
+          {/* twinkles */}
+          {Array.from({ length: 22 }, (_, i) => {
+            const lx = (i * 47) % 100;
+            const ly = (i * 31) % 100;
             return (
               <div
-                key={s.id}
-                className={`polaroid-wrap ${isRevealed ? "polaroid-revealed" : ""}`}
+                key={`tw-${i}`}
                 style={{
-                  transform: `rotate(${isRevealed ? 0 : rotation}deg)`,
-                  scrollSnapAlign: "start",
-                  animationDelay: `${i * 0.06}s`,
-                  opacity: 0,
-                  animationFillMode: "forwards",
+                  position: "absolute",
+                  left: `${lx}%`,
+                  top: `${ly}%`,
+                  width: 2,
+                  height: 2,
+                  borderRadius: "50%",
+                  background: "#fff",
+                  animation: `ch4-twinkle ${2 + (i % 4)}s ease-in-out infinite`,
+                  animationDelay: `${(i % 5) * 0.4}s`,
                 }}
-              >
-                {/* Photo area */}
-                <PolaroidCard
-                  spot={s}
-                  revealed={isRevealed}
-                  onReveal={() =>
-                    reveal(s.id, {
-                      currentTarget: {
-                        getBoundingClientRect: () => ({
-                          left: 200 + i * 220,
-                          top: 300,
-                          width: 200,
-                          height: 260,
-                        }),
-                      },
-                    })
-                  }
-                />
+              />
+            );
+          })}
 
-                {/* Polaroid caption strip */}
-                <div
+          {/* moon */}
+          <div
+            style={{
+              position: "absolute",
+              top: 16,
+              right: 18,
+              fontSize: 30,
+              filter: "drop-shadow(0 0 10px rgba(255,236,180,.55))",
+            }}
+          >
+            {moonPhase}
+          </div>
+
+          <svg
+            viewBox={`0 0 ${VB_W} ${VB_H}`}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            {/* faint full route */}
+            <path
+              d={ROUTE_D}
+              fill="none"
+              stroke="rgba(255,255,255,.16)"
+              strokeWidth="3"
+              strokeDasharray="3 9"
+              strokeLinecap="round"
+            />
+            {/* glowing ridden trail */}
+            <path
+              ref={pathRef}
+              d={ROUTE_D}
+              fill="none"
+              stroke="url(#ch4routeGrad)"
+              strokeWidth="4"
+              strokeLinecap="round"
+              className="ch4-route-glow"
+            />
+            <defs>
+              <linearGradient id="ch4routeGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--sky)" />
+                <stop offset="55%" stopColor="var(--lavender)" />
+                <stop offset="100%" stopColor="var(--rose)" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* burst particles */}
+          {bursts.map((b) => (
+            <div
+              key={b.id}
+              style={{
+                position: "absolute",
+                left: `${pct(b.x, VB_W)}%`,
+                top: `${pct(b.y, VB_H)}%`,
+                pointerEvents: "none",
+              }}
+            >
+              {b.hearts.map((h) => (
+                <span
+                  key={h.key}
                   style={{
-                    marginTop: 10,
-                    textAlign: "center",
-                    padding: "0 4px",
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    fontSize: 13,
+                    "--dx": `${h.dx}px`,
+                    "--dy": `${h.dy}px`,
+                    animation: `ch4-burstFloat .9s ease-out ${h.delay}s both`,
                   }}
                 >
-                  <div
-                    className="ch4-playfair"
-                    style={{
-                      fontSize: 13,
-                      fontStyle: "italic",
-                      color: isRevealed ? "#d8a4ff" : "rgba(200,180,255,0.35)",
-                      fontWeight: 500,
-                      transition: "color .4s",
-                    }}
-                  >
-                    {s.name}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 10,
-                      color: "rgba(200,180,255,0.3)",
-                      marginTop: 2,
-                      letterSpacing: 0.5,
-                    }}
-                  >
-                    {s.time}
-                  </div>
+                  {h.glyph}
+                </span>
+              ))}
+            </div>
+          ))}
 
-                  {/* Dot indicator */}
-                  <div
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: isRevealed
-                        ? s.accent
-                        : "rgba(200,180,255,0.15)",
-                      margin: "6px auto 0",
-                      boxShadow: isRevealed ? `0 0 10px ${s.accent}` : "none",
-                      transition: "all .4s ease",
-                    }}
-                  />
-                </div>
+          {/* stop markers */}
+          {SPOTS.map((s, i) => {
+            const state =
+              i < visitedCount
+                ? "visited"
+                : i === visitedCount
+                  ? "next"
+                  : "locked";
+            return (
+              <button
+                key={s.id}
+                onClick={() => handleTap(i)}
+                disabled={state !== "next"}
+                aria-label={state === "locked" ? "Locked stop" : s.name}
+                className={state === "next" ? "ch4-next-pulse" : ""}
+                style={{
+                  position: "absolute",
+                  left: `${pct(s.x, VB_W)}%`,
+                  top: `${pct(s.y, VB_H)}%`,
+                  transform: "translate(-50%,-50%)",
+                  width: state === "next" ? 40 : 32,
+                  height: state === "next" ? 40 : 32,
+                  borderRadius: "50%",
+                  border: "none",
+                  cursor: state === "next" ? "pointer" : "default",
+                  fontSize: state === "locked" ? 12 : 16,
+                  transition: "all .35s cubic-bezier(.34,1.4,.64,1)",
+                  background:
+                    state === "visited"
+                      ? "linear-gradient(135deg,var(--deep),var(--warm))"
+                      : state === "next"
+                        ? "rgba(255,255,255,.92)"
+                        : "rgba(255,255,255,.12)",
+                  color:
+                    state === "locked" ? "rgba(255,255,255,.5)" : "inherit",
+                  boxShadow:
+                    state === "visited"
+                      ? "0 4px 16px rgba(196,112,106,.5)"
+                      : state === "next"
+                        ? "0 0 0 4px rgba(255,255,255,.18)"
+                        : "none",
+                }}
+              >
+                {state === "locked" ? "•" : s.icon}
+              </button>
+            );
+          })}
+
+          {/* labels for visited + next */}
+          {SPOTS.map((s, i) => {
+            if (i > visitedCount) return null;
+            const isNext = i === visitedCount;
+            return (
+              <div
+                key={`lbl-${s.id}`}
+                style={{
+                  position: "absolute",
+                  left: `${pct(s.x, VB_W)}%`,
+                  top: `${pct(s.y, VB_H) - (isNext ? 7.5 : 6.5)}%`,
+                  transform: "translate(-50%,-100%)",
+                  background: isNext ? "rgba(255,255,255,.9)" : "var(--deep)",
+                  color: isNext ? "var(--deep)" : "#fff",
+                  borderRadius: 8,
+                  padding: "2px 8px",
+                  fontSize: 9,
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  pointerEvents: "none",
+                  letterSpacing: 0.4,
+                  opacity: isNext ? 0.95 : 1,
+                }}
+              >
+                {isNext ? `→ ${s.name}` : s.name}
               </div>
             );
           })}
-        </div>
 
-        {/* Film bottom perforations */}
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            padding: "0 20px",
-            marginTop: 6,
-            overflowX: "hidden",
-          }}
-        >
-          {Array.from({ length: 30 }, (_, i) => (
-            <div key={i} className="film-hole" />
-          ))}
-        </div>
-      </div>
-
-      {/* ── PROGRESS BAR ── */}
-      <div
-        style={{
-          maxWidth: 440,
-          margin: "0 auto",
-          padding: "0 24px",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: 8,
-          }}
-        >
-          <span
+          {/* the bike */}
+          <div
+            ref={bikeRef}
+            className="ch4-bike-idle"
             style={{
-              fontSize: 11,
-              color: "rgba(200,180,255,0.45)",
-              letterSpacing: 0.5,
+              position: "absolute",
+              left: "0%",
+              top: "0%",
+              fontSize: 24,
+              pointerEvents: "none",
+              zIndex: 5,
+              transition: "filter .3s",
             }}
           >
-            आठवणी developed
-          </span>
-          <span style={{ fontSize: 11, color: "#d8a4ff", fontWeight: 600 }}>
-            {revealed.length} / {SPOTS.length}
-          </span>
+            🛵
+          </div>
         </div>
 
-        {/* Track */}
-        <div
-          style={{
-            height: 4,
-            borderRadius: 4,
-            background: "rgba(180,100,255,0.12)",
-            border: "1px solid rgba(180,100,255,0.15)",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              borderRadius: 4,
-              background: "linear-gradient(90deg,#7b2fbe,#d8a4ff)",
-              width: `${(revealed.length / SPOTS.length) * 100}%`,
-              transition: "width .6s cubic-bezier(.34,1.2,.64,1)",
-              boxShadow: "0 0 12px rgba(200,130,255,0.5)",
-            }}
-          />
-        </div>
-
-        {/* Spot pips */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: 8,
-          }}
-        >
-          {SPOTS.map((s) => (
+        {/* memory trail */}
+        <div className="grid `grid-cols-[repeat(auto-fill,minmax(240px,1fr))]` gap-2.5 mt-4">
+          {SPOTS.filter((_, i) => i < visitedCount).map((s, i) => (
             <div
-              key={s.id}
-              title={s.name}
-              style={{
-                fontSize: revealed.includes(s.id) ? 16 : 11,
-                transition: "font-size .3s ease, filter .3s ease",
-                filter: revealed.includes(s.id)
-                  ? "drop-shadow(0 0 6px rgba(200,130,255,0.8))"
-                  : "grayscale(1) opacity(0.3)",
-              }}
+              key={`m-${s.id}`}
+              className={`glass-rose rounded-[14px] px-4 py-3 ${
+                i === activeCard ? "ch4-card-enter" : ""
+              }`}
+              style={{ perspective: 600 }}
             >
-              {revealed.includes(s.id) ? s.icon : "○"}
+              <div className="text-[18px] mb-1">
+                {s.icon}{" "}
+                <strong style={{ color: "var(--deep)", fontSize: 12 }}>
+                  {s.name}
+                </strong>
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "var(--muted)",
+                  lineHeight: 1.55,
+                  fontStyle: "italic",
+                }}
+              >
+                {s.memory}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── LOVE QUOTE ON FULL REVEAL ── */}
-      {allDone && (
-        <div
+      {/* ambient floating hearts */}
+      {Array.from({ length: 7 }, (_, i) => (
+        <span
+          key={`amb-${i}`}
+          className="ch4-amb-heart"
           style={{
-            maxWidth: 500,
-            margin: "32px auto 0",
-            padding: "0 20px",
-            position: "relative",
-            zIndex: 2,
-            animation: "fadeUp .7s ease forwards",
-            textAlign: "center",
+            position: "absolute",
+            left: `${8 + i * 13}%`,
+            bottom: 0,
+            fontSize: 14,
+            opacity: 0,
+            pointerEvents: "none",
+            animation: `ch4-float ${7 + (i % 3)}s ease-in-out infinite`,
+            animationDelay: `${i * 1.3}s`,
           }}
         >
-          {/* Decorative top line */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 24,
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                height: 1,
-                background:
-                  "linear-gradient(90deg,transparent,rgba(200,130,255,0.4))",
-              }}
-            />
-            <span style={{ fontSize: 18 }}>💜</span>
-            <div
-              style={{
-                flex: 1,
-                height: 1,
-                background:
-                  "linear-gradient(90deg,rgba(200,130,255,0.4),transparent)",
-              }}
-            />
-          </div>
+          {i % 2 ? "💗" : "✨"}
+        </span>
+      ))}
 
-          {/* Quote card */}
-          <div
+      {showFinale && (
+        <div
+          className="anim-fadeup text-center mt-7 relative"
+          style={{ maxWidth: 640, margin: "28px auto 0" }}
+        >
+          {Array.from({ length: 14 }, (_, i) => (
+            <span
+              key={`rain-${i}`}
+              className="ch4-rain-drop"
+              style={{
+                position: "fixed",
+                top: -20,
+                left: `${(i * 7.3) % 100}%`,
+                fontSize: 12 + (i % 3) * 4,
+                pointerEvents: "none",
+                zIndex: 0,
+                animation: `ch4-rain ${4 + (i % 4)}s linear ${i * 0.25}s infinite`,
+              }}
+            >
+              {i % 3 ? "💗" : "🌙"}
+            </span>
+          ))}
+          <p
+            className="fc"
             style={{
-              background:
-                "linear-gradient(145deg,rgba(120,50,180,0.15),rgba(60,20,100,0.2))",
-              border: "1px solid rgba(200,130,255,0.25)",
-              borderRadius: 20,
-              padding: "28px 24px 24px",
-              marginBottom: 20,
+              color: "var(--deep)",
+              fontStyle: "italic",
+              marginBottom: 14,
+              fontSize: 16,
               position: "relative",
-              overflow: "hidden",
+              zIndex: 1,
             }}
           >
-            {/* Shimmer top border */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: "10%",
-                right: "10%",
-                height: 1,
-                background:
-                  "linear-gradient(90deg,transparent,#d8a4ff,transparent)",
-              }}
-            />
-
-            <div style={{ fontSize: 28, marginBottom: 14 }}>🌙 💜 🌙</div>
-
-            <p
-              className="ch4-playfair"
-              style={{
-                fontSize: 16,
-                fontStyle: "italic",
-                color: "rgba(230,210,255,0.92)",
-                lineHeight: 1.75,
-                marginBottom: 16,
-              }}
-            >
-              "शहराच्या प्रत्येक corner मध्ये
-              <br />
-              तुझ्याशी एक आठवण आहे, Janvi...
-              <br />
-              रात्र असो वा दिवस,
-              <br />
-              तुझ्यासोबत सगळं perfect वाटतं."
-            </p>
-
-            <div
-              style={{
-                fontSize: 11,
-                color: "rgba(200,160,255,0.45)",
-                letterSpacing: 1.5,
-                textTransform: "uppercase",
-              }}
-            >
-              — तुझ्यासाठी, नेहमी 🤍
-            </div>
-          </div>
-
-          {/* Next chapter button */}
+            "शहराच्या प्रत्येक Corner madhi तुझ्याशी एक आठवण..."
+          </p>
           <button
             onClick={onNext}
             style={{
-              background: "linear-gradient(135deg,#7b2fbe,#c97fe8)",
+              background: "linear-gradient(135deg,var(--sky),var(--lavender))",
               border: "none",
-              color: "#fff",
-              padding: "15px 44px",
+              color: "var(--ink)",
+              padding: "13px 38px",
               borderRadius: 50,
               cursor: "pointer",
-              fontWeight: 600,
-              fontSize: 15,
-              letterSpacing: 0.5,
-              boxShadow: "0 10px 36px rgba(180,100,220,0.45)",
-              transition: "all .3s ease",
-              fontFamily: "Inter,sans-serif",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-3px)";
-              e.currentTarget.style.boxShadow =
-                "0 16px 48px rgba(180,100,220,0.6)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow =
-                "0 10px 36px rgba(180,100,220,0.45)";
+              fontWeight: 700,
+              fontSize: 14,
+              boxShadow: "0 8px 24px rgba(168,200,232,.45)",
+              position: "relative",
+              zIndex: 1,
             }}
           >
-            Chapter 5 → ✨
+            Chapter 5 →
           </button>
         </div>
+      )}
+
+      {!showFinale && (
+        <p
+          style={{
+            textAlign: "center",
+            color: "var(--rose)",
+            marginTop: 16,
+            fontSize: 12,
+            fontWeight: 600,
+          }}
+        >
+          {visitedCount === 0
+            ? "राईड सुरू करण्यासाठी पहिल्या थांब्यावर टॅप कर 🛵"
+            : `${visitedCount}/${SPOTS.length} आठवणी सापडल्या`}
+        </p>
       )}
     </div>
   );
